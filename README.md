@@ -36,13 +36,26 @@
 | NAS / 网络挂了 | —— | 自动降级为本地模式，**照样能记账**，恢复后自动回传 |
 | 数据备份 | 手动导出 | 每次写入自动留上一版 `.bak`，另有手动快照 |
 | 并发写入 | 不适用 | 服务端统一分配 `id`，多设备不冲突 |
-| 部署 | 纯静态托管 | 单个 Docker 容器 |
+| 部署 | 纯静态托管（随便丢个 Web 服务器） | 单个容器搞定，[6 种部署方式](docs/DEPLOYMENT.md)任选（含不用 Docker 的裸机方式） |
 
 原版的功能一个没少：AES-256 加密、中文大写、语音播报、双屏互动、Excel/PDF 导出、喜庆红 / 肃穆灰双主题。
 
 ---
 
-## 快速开始
+## 部署方式
+
+提供了 **6 种部署方式**，挑一种适合你环境的即可 —— 完整步骤、各平台路径、踩坑说明都在 **[部署指南 docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**。
+
+| 方式 | 入口 | 适合谁 |
+|---|---|---|
+| **[Docker Compose](docs/DEPLOYMENT.md#方式一docker-compose推荐)** | `docker compose up -d` | 所有人，默认推荐 |
+| [docker run 单命令](docs/DEPLOYMENT.md#方式二docker-run-单命令免-compose) | 一条命令，免 compose 文件 | 环境里没有 compose |
+| [构建自包含镜像](docs/DEPLOYMENT.md#方式三构建自包含镜像) | `docker build -t gift-book-nas .` | 多机分发 / 推私有仓库 |
+| [NAS 图形面板](docs/DEPLOYMENT.md#方式四nas-图形面板点点点) | 飞牛 / 群晖 / 威联通 / Unraid / TrueNAS | 习惯图形界面 |
+| [裸机 Python + systemd](docs/DEPLOYMENT.md#方式五裸机运行不用-docker) | `python3 server.py` | NAS 没装 Docker、软路由、老设备 |
+| [第三方 Docker 面板](docs/DEPLOYMENT.md#方式六第三方-docker-面板) | Portainer / Dockge / 1Panel 贴 Compose | 已有面板 |
+
+最快的一条路：
 
 ```bash
 git clone https://github.com/bestmingyang/gift-book-nas.git
@@ -54,14 +67,23 @@ docker compose up -d
 
 然后浏览器打开 `http://<宿主机IP>:8094` 即可。
 
+> ⚠️ **有个前提别忽略**：容器是把宿主机上的 `server.py` 和 `src/` **挂载**进去的，它们不在镜像里。所以不管用哪种方式，**都得先把代码文件放到机器上**（`git clone` 或下载解压），尤其 NAS 图形面板部署时——面板不会替你下载源码。详见[通用准备](docs/DEPLOYMENT.md#零通用准备所有方式都要先做这一步)。
+>
 > 首次启动会自动创建数据文件；`data/` 目录默认就在项目旁边，想放到 NAS 大容量盘上，改 `docker-compose.yml` 里那行数据卷路径即可。
 
 **停止 / 升级**
 
 ```bash
-docker compose down          # 停止（数据保留）
-docker compose up -d --build # 更新后重启
+docker compose down                    # 停止（数据保留）
+docker compose up -d                   # 再启动
+docker compose restart                 # 改了 server.py 后重启使其生效
+docker compose up -d --force-recreate  # git pull 后强制重建容器
 ```
+
+> 因为代码是**挂载**进容器的，所以：只改了 `src/` 里的前端 → 浏览器强制刷新即可，不用重启；改了 `server.py` → 需要 `docker compose restart`。
+> 注意 `docker compose up -d --build` 在本项目上**不会重建容器**（compose 里没有 `build` 段），别用错了。
+
+> 不用 Docker？看[方式五：裸机运行](docs/DEPLOYMENT.md#方式五裸机运行不用-docker)——后端零第三方依赖，Python 3.8+ 直接跑，配个 systemd 服务就能开机自启。
 
 ---
 
@@ -169,7 +191,8 @@ POST   /api/restore            用上传的 JSON 全量覆盖（灾难恢复）
 
 ```
 gift-book-nas/
-├── docker-compose.yml        # 一键部署
+├── docker-compose.yml        # 一键部署（挂载源码，改完刷新即生效）
+├── Dockerfile                # 可选：构建自包含镜像（约 67MB）
 ├── server.py                 # NAS 持久化后端（Python 标准库，零依赖）
 ├── src/                      # 前端
 │   ├── index.html            # 主程序（原版 + 数据层改造）
@@ -177,6 +200,9 @@ gift-book-nas/
 │   ├── UPSTREAM-README.md    # 上游原版说明（保留署名）
 │   ├── License               # 上游许可证原文
 │   └── static/               # 第三方库与字体（原版自带）
+├── docs/
+│   ├── DEPLOYMENT.md         # 部署指南（6 种方式 × 各平台路径 × 排错）
+│   └── screenshot.png        # 界面截图
 ├── data/                     # 数据目录（运行时生成，已 gitignore）
 └── LICENSE                   # CC BY-SA 4.0
 ```
