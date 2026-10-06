@@ -1,0 +1,25 @@
+# 运行时数据（礼簿数据文件、备份、快照）——绝不入库
+data/*
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 测试产物与临时文件
+.test/
+*.log
+*.tmp
+
+# 备份文件（部署时的 .bak-<时间戳>）
+*.bak
+*.bak-*
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+*.swp

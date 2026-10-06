@@ -1,0 +1,45 @@
+services:
+  gift-book:
+    # 用 python:3-alpine 取代原版的 busybox 静态服务：
+    # 同一个进程既提供网页，又提供 /api/* 数据接口（同源，无跨域问题）
+    image: python:3-alpine
+    container_name: gift-book
+    working_dir: /app
+    command: ["python3", "/app/server.py"]
+    ports:
+      # 左边是宿主机端口，按需修改（默认 8094）
+      - "8094:3000"
+    environment:
+      - GB_DATA_DIR=/data
+      - GB_STATIC_DIR=/home/static
+      - GB_PORT=3000
+      # 让日志与备份文件名使用本地时间
+      - TZ=Asia/Shanghai
+      # 访问口令：留空 = 不鉴权（内网直连够用）。
+      # ⚠️ 一旦要用内网穿透 / 公网暴露，务必设置一个随机串，例如：
+      #    GB_TOKEN=换成你自己的随机字符串
+      # 设置后所有 /api/* 请求需带 X-GB-Token 请求头，
+      # 也可用带口令的链接免输入：http://<地址>:8094/?token=<口令>
+      - GB_TOKEN=
+      # 单次请求体上限（字节），默认 2MB
+      # - GB_MAX_BODY=2097152
+    volumes:
+      # 后端服务代码
+      - ./server.py:/app/server.py:ro
+      # 网页（电子礼簿前端，原版 + 数据层改造）
+      - ./src:/home/static:ro
+      # 数据落盘目录：默认放在本文件旁边的 ./data，
+      # 想落到 NAS 的大容量磁盘上，换成绝对路径即可，例如：
+      #   - "/vol00/YOUR-DISK/gift-book-data:/data"
+      - ./data:/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import urllib.request;urllib.request.urlopen('http://127.0.0.1:3000/api/health',timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

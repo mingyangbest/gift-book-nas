@@ -1,0 +1,11 @@
+.git
+.gitignore
+data/
+docs/
+.test/
+__pycache__/
+*.py[cod]
+*.log
+*.bak
+*.bak-*
+.DS_Store
