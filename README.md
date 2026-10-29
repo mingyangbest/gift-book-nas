@@ -58,7 +58,7 @@
 最快的一条路：
 
 ```bash
-git clone https://github.com/bestmingyang/gift-book-nas.git
+git clone https://github.com/mingyangbest/gift-book-nas.git
 cd gift-book-nas
 
 # 启动（前端 + 后端 + 数据目录一次到位）

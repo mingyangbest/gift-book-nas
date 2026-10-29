@@ -28,7 +28,7 @@
 ```bash
 # 换成你想放的目录
 cd /opt
-git clone https://github.com/bestmingyang/gift-book-nas.git
+git clone https://github.com/mingyangbest/gift-book-nas.git
 cd gift-book-nas
 ```
 
@@ -36,7 +36,7 @@ cd gift-book-nas
 
 ```bash
 cd /opt
-curl -L -o gbn.zip https://github.com/bestmingyang/gift-book-nas/archive/refs/heads/main.zip
+curl -L -o gbn.zip https://github.com/mingyangbest/gift-book-nas/archive/refs/heads/main.zip
 unzip gbn.zip && mv gift-book-nas-main gift-book-nas && cd gift-book-nas
 ```
 
@@ -45,8 +45,8 @@ unzip gbn.zip && mv gift-book-nas-main gift-book-nas && cd gift-book-nas
 ```bash
 mkdir -p /opt/gift-book-nas/src
 cd /opt/gift-book-nas
-curl -LO https://raw.githubusercontent.com/bestmingyang/gift-book-nas/main/server.py
-curl -LO https://raw.githubusercontent.com/bestmingyang/gift-book-nas/main/docker-compose.yml
+curl -LO https://raw.githubusercontent.com/mingyangbest/gift-book-nas/main/server.py
+curl -LO https://raw.githubusercontent.com/mingyangbest/gift-book-nas/main/docker-compose.yml
 # src 目录下的前端文件需逐个下载，建议还是用做法 A/B
 ```
 
@@ -84,7 +84,7 @@ volumes:
 最省事，也是本项目默认方式。
 
 ```bash
-git clone https://github.com/bestmingyang/gift-book-nas.git
+git clone https://github.com/mingyangbest/gift-book-nas.git
 cd gift-book-nas
 docker compose up -d
 ```
